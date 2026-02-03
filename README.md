@@ -279,13 +279,20 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Guidelines
+- Follow PEP 8 style guide for Python code
+- Add comments for complex logic
+- Update documentation for new features
+- Test your changes before submitting
+
 ## 📝 License
 
-This project is open source and available for educational purposes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Authors
 
-- **Ravin** - [GitHub Profile](https://github.com/Ravin2313)
+- **Ravin2313** - [GitHub Profile](https://github.com/Ravin2313)
+- Email: ravindrashriwas2313@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -295,7 +302,9 @@ This project is open source and available for educational purposes.
 
 ## 📧 Contact
 
-For questions or suggestions, please open an issue on GitHub.
+For questions or suggestions:
+- Open an issue on GitHub
+- Email: ravindrashriwas2313@gmail.com
 
 ---
 
