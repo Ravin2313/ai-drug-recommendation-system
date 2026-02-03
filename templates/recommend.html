@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Recommendation - AI System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Animated grid background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            animation: fadeInScale 0.6s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.3em;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #a5b4fc;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1em;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a5b4fc' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            padding-right: 50px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #a5b4fc;
+            text-decoration: none;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link a:hover {
+            color: #667eea;
+            transform: translateX(-5px);
+        }
+
+        /* Search functionality */
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 40px 25px;
+            }
+            
+            h1 {
+                font-size: 1.9em;
+            }
+            
+            .btn {
+                padding: 18px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="icon">🔍</div>
+                <h1>Drug Recommendation</h1>
+                <p class="subtitle">
+                    Select your medical condition to get AI-powered drug recommendations
+                </p>
+            </div>
+
+            <form action="/recommend" method="POST">
+                <div class="form-group">
+                    <label for="condition1">Medical Condition 1: <span style="color: #f5576c;">*</span></label>
+                    
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="searchInput1" 
+                            class="search-input" 
+                            placeholder="🔎 Search conditions..."
+                            onkeyup="filterConditions(1)"
+                        >
+                    </div>
+                    
+                    <select id="condition1" name="condition1" required size="6">
+                        <option value="">-- Choose a condition --</option>
+                        {% for condition in conditions %}
+                        <option value="{{ condition }}">{{ condition|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="condition2">Medical Condition 2: <span style="color: rgba(255,255,255,0.4); font-size: 0.9em;">(Optional)</span></label>
+                    
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="searchInput2" 
+                            class="search-input" 
+                            placeholder="🔎 Search conditions..."
+                            onkeyup="filterConditions(2)"
+                        >
+                    </div>
+                    
+                    <select id="condition2" name="condition2" size="6">
+                        <option value="">-- Choose a condition --</option>
+                        {% for condition in conditions %}
+                        <option value="{{ condition }}">{{ condition|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="condition3">Medical Condition 3: <span style="color: rgba(255,255,255,0.4); font-size: 0.9em;">(Optional)</span></label>
+                    
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="searchInput3" 
+                            class="search-input" 
+                            placeholder="🔎 Search conditions..."
+                            onkeyup="filterConditions(3)"
+                        >
+                    </div>
+                    
+                    <select id="condition3" name="condition3" size="6">
+                        <option value="">-- Choose a condition --</option>
+                        {% for condition in conditions %}
+                        <option value="{{ condition }}">{{ condition|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn">
+                    🎯 Get Recommendations for All Conditions
+                </button>
+            </form>
+
+            <div class="info-box">
+                💡 <strong>Tip:</strong> Our AI analyzes thousands of patient reviews to recommend the most effective drugs based on positive feedback, ratings, and community votes.
+            </div>
+
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterConditions(num) {
+            const input = document.getElementById('searchInput' + num);
+            const filter = input.value.toLowerCase();
+            const select = document.getElementById('condition' + num);
+            const options = select.getElementsByTagName('option');
+            
+            for (let i = 1; i < options.length; i++) {
+                const txtValue = options[i].textContent || options[i].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    options[i].style.display = "";
+                } else {
+                    options[i].style.display = "none";
+                }
+            }
+        }
+
+        // Auto-select on click in search results for all three dropdowns
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('condition' + i).addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('searchInput' + i).value = this.options[this.selectedIndex].text;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

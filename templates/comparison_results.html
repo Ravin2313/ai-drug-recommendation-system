@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparison Results - {{ condition }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .condition-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .drug-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .drug-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 12px 40px 0 rgba(102, 126, 234, 0.5);
+        }
+
+        .drug-card.winner {
+            border: 3px solid #fbbf24;
+            box-shadow: 0 8px 32px 0 rgba(251, 191, 36, 0.4);
+        }
+
+        .winner-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1a1a2e;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .drug-name {
+            color: #fff;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #a5b4fc;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .stat-value.positive {
+            color: #34d399;
+        }
+
+        .stat-value.negative {
+            color: #f87171;
+        }
+
+        .pros-cons {
+            margin-top: 25px;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .pros-list, .cons-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .pros-list li, .cons-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            font-size: 0.95em;
+        }
+
+        .pros-list li {
+            background: rgba(52, 211, 153, 0.1);
+            border-left: 3px solid #34d399;
+            color: #d1fae5;
+        }
+
+        .cons-list li {
+            background: rgba(248, 113, 113, 0.1);
+            border-left: 3px solid #f87171;
+            color: #fecaca;
+        }
+
+        .charts-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-title {
+            color: #fff;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .no-data {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .drug-card {
+                padding: 20px;
+            }
+
+            .charts-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Drug Comparison Results</h1>
+            <div class="condition-badge">{{ condition }}</div>
+        </div>
+
+        <div class="comparison-grid">
+            {% for drug in drugs %}
+            <div class="drug-card {% if drug.is_winner %}winner{% endif %}">
+                {% if drug.is_winner %}
+                <div class="winner-badge">🏆 Best Overall</div>
+                {% endif %}
+                
+                <div class="drug-name">{{ drug.name }}</div>
+
+                <div class="stat-row">
+                    <span class="stat-label">⭐ Average Rating</span>
+                    <span class="stat-value">{{ drug.avg_rating }}</span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">👍 Positive Reviews</span>
+                    <span class="stat-value positive">{{ drug.positive_ratio }}</span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">📊 Total Reviews</span>
+                    <span class="stat-value">{{ drug.total_votes }}</span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">🎯 Recommendation Score</span>
+                    <span class="stat-value">{{ drug.rec_score }}</span>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="section-title">✅ Pros</div>
+                    <ul class="pros-list">
+                        {% for pro in drug.pros %}
+                        <li>{{ pro }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="section-title">⚠️ Cons</div>
+                    <ul class="cons-list">
+                        {% for con in drug.cons %}
+                        <li>{{ con }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="charts-section">
+            <h2 class="section-title" style="text-align: center; font-size: 1.8em; margin-bottom: 10px;">📊 Visual Comparison</h2>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Average Ratings</div>
+                    <canvas id="ratingsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Positive Review Percentage</div>
+                    <canvas id="positiveChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Total Reviews Count</div>
+                    <canvas id="votesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Recommendation Scores</div>
+                    <canvas id="recScoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/compare_page" class="btn btn-primary">🔄 Compare Other Drugs</a>
+            <a href="/" class="btn btn-secondary">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const drugNames = {{ drug_names | tojson }};
+        const ratings = {{ ratings | tojson }};
+        const positiveRatios = {{ positive_ratios | tojson }};
+        const totalVotes = {{ total_votes | tojson }};
+        const recScores = {{ rec_scores | tojson }};
+
+        const chartColors = [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(245, 87, 108, 0.8)',
+            'rgba(52, 211, 153, 0.8)'
+        ];
+
+        const chartBorders = [
+            'rgba(102, 126, 234, 1)',
+            'rgba(245, 87, 108, 1)',
+            'rgba(52, 211, 153, 1)'
+        ];
+
+        // Ratings Chart
+        new Chart(document.getElementById('ratingsChart'), {
+            type: 'bar',
+            data: {
+                labels: drugNames,
+                datasets: [{
+                    label: 'Rating (out of 10)',
+                    data: ratings,
+                    backgroundColor: chartColors,
+                    borderColor: chartBorders,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: { color: '#a5b4fc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#a5b4fc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                }
+            }
+        });
+
+        // Positive Reviews Chart
+        new Chart(document.getElementById('positiveChart'), {
+            type: 'doughnut',
+            data: {
+                labels: drugNames,
+                datasets: [{
+                    data: positiveRatios,
+                    backgroundColor: chartColors,
+                    borderColor: chartBorders,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                }
+            }
+        });
+
+        // Total Votes Chart
+        new Chart(document.getElementById('votesChart'), {
+            type: 'bar',
+            data: {
+                labels: drugNames,
+                datasets: [{
+                    label: 'Number of Reviews',
+                    data: totalVotes,
+                    backgroundColor: chartColors,
+                    borderColor: chartBorders,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#a5b4fc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#a5b4fc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                }
+            }
+        });
+
+        // Recommendation Score Chart
+        new Chart(document.getElementById('recScoreChart'), {
+            type: 'radar',
+            data: {
+                labels: drugNames,
+                datasets: [{
+                    label: 'Recommendation Score',
+                    data: recScores,
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: chartColors,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: chartBorders
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        ticks: { color: '#a5b4fc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: { color: '#fff' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
